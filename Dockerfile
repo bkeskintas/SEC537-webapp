@@ -9,4 +9,4 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 #command to run
-CMD ["python", "app.py"]
+CMD ["python", "run.py"]
