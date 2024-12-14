@@ -36,14 +36,19 @@ def admin_dashboard(username):
 
 @main.route('/student/<student_id>')
 def student_dashboard(student_id):
-    # Vulnerable to IDOR
     conn = sqlite3.connect('vulnerable.db')
     c = conn.cursor()
-    c.execute(f"SELECT grade FROM grades WHERE student_id={student_id}")
-    grade = c.fetchone()
+    c.execute(f"SELECT grade, username FROM grades JOIN users ON grades.student_id = users.id WHERE student_id={student_id}")
+    data = c.fetchone()
     conn.close()
-    if grade:
-        return f"Your grade is: {grade[0]}"
+    if data:
+        grade, username = data
+        # Reflect username directly into HTML (vulnerable to XSS)
+        return f"<h1>Welcome, {username}!</h1><p>Your grade is: {grade}</p>"
     else:
         return "No grade found"
+
+
+        
+
 
