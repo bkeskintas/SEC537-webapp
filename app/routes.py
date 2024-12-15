@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, session
+
 import sqlite3
 
 main = Blueprint('main', __name__)
@@ -22,31 +23,59 @@ def login():
     
     if user:
         role = user[3]
-        if role == 'admin':
+        session['username'] = user[1]  # Store username in session
+        session['role'] = user[3]      # Store role in session
+        if user[3] == 'admin':
             return redirect(url_for('main.admin_dashboard', username=username))
         else:
             return redirect(url_for('main.student_dashboard', student_id=user[0]))
     else:
         return "Invalid credentials"
 
-@main.route('/admin/<username>')
-def admin_dashboard(username):
-    # No role verification
-    return f"Welcome Admin {username}! You can edit grades."
+
 
 @main.route('/student/<student_id>')
 def student_dashboard(student_id):
     conn = sqlite3.connect('vulnerable.db')
     c = conn.cursor()
-    c.execute(f"SELECT grade, username FROM grades JOIN users ON grades.student_id = users.id WHERE student_id={student_id}")
+    c.execute(f"SELECT grade, comments FROM grades WHERE student_id={student_id}")
     data = c.fetchone()
     conn.close()
     if data:
-        grade, username = data
-        # Reflect username directly into HTML (vulnerable to XSS)
-        return f"<h1>Welcome, {username}!</h1><p>Your grade is: {grade}</p>"
+        grade, comments = data
+        # Reflect comments directly (vulnerable to XSS)
+        return render_template('student_dashboard.html', grade=grade, comments=comments)
     else:
-        return "No grade found"
+        return "No grade found", 404
+
+
+
+@main.route('/admin/<username>', methods=['GET', 'POST'])
+def admin_dashboard(username):
+    # Check if the user is logged in and has a role
+    if 'role' not in session or 'username' not in session:
+        return redirect(url_for('main.index'))  # Redirect to login if not authenticated
+
+    # Role verification: only admin can access
+    if session['role'] != 'admin' or session['username'] != username:
+        return "Unauthorized Access: You must be an admin to view this page.", 403
+
+    # If the method is POST, update the grades
+    if request.method == 'POST':
+        student_id = request.form['student_id']
+        grade = request.form['grade']
+        comments = request.form['comments'].replace("'", "''")  # Escape single quotes
+        
+        # Update the database (vulnerable query for testing purposes)
+        conn = sqlite3.connect('vulnerable.db')
+        c = conn.cursor()
+        c.execute(f"UPDATE grades SET grade='{grade}', comments='{comments}' WHERE student_id={student_id}")
+        conn.commit()
+        conn.close()
+        return redirect(url_for('main.admin_dashboard', username=username))
+    return render_template('admin_dashboard.html')
+
+
 
 
         
