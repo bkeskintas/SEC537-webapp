@@ -28,7 +28,7 @@ def login():
         if user[3] == 'admin':
             return redirect(url_for('main.admin_dashboard', username=username))
         else:
-            return redirect(url_for('main.student_dashboard', student_id=user[0]))
+            return redirect(url_for('main.student_dashboard', student_id=user[0], username=username))
     else:
         return "Invalid credentials"
 
@@ -41,10 +41,11 @@ def student_dashboard(student_id):
     c.execute(f"SELECT grade, comments FROM grades WHERE student_id={student_id}")
     data = c.fetchone()
     conn.close()
+    username = session['username']
     if data:
         grade, comments = data
         # Reflect comments directly (vulnerable to XSS)
-        return render_template('student_dashboard.html', grade=grade, comments=comments)
+        return render_template('grades.html', username=username, grade=grade, comments=comments)
     else:
         return "No grade found", 404
 
