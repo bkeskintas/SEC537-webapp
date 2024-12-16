@@ -38,16 +38,19 @@ def login():
 def student_dashboard(student_id):
     conn = sqlite3.connect('vulnerable.db')
     c = conn.cursor()
-    c.execute(f"SELECT grade, comments FROM grades WHERE student_id={student_id}")
+    #fetch grade for the requested student_id without validation
+    #IDOR -> Broken Access Control
+    c.execute(f"SELECT grade, comments, username FROM grades JOIN users ON grades.student_id = users.id WHERE student_id={student_id}")
     data = c.fetchone()
     conn.close()
-    username = session['username']
+    
     if data:
-        grade, comments = data
+        grade, comments, username = data
         # Reflect comments directly (vulnerable to XSS)
         return render_template('grades.html', username=username, grade=grade, comments=comments)
     else:
         return "No grade found", 404
+
 
 
 
