@@ -3,24 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Dashboard</title>
+    <title>BUCourse</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #eeeef0;
+        }
+        .navbar {
+            display: flexbox;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            background-image: url("{{ url_for('static', filename='navbar.png') }}");
+        }
+
+        .navbar img {
+            height: 90px; /* Adjust logo size */
+            padding: 0.1rem;
+        }
+
+        .navbar .right-links {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar a {
+            color: white;
+           
+            margin-left: 20px;
+            font-size: 14px;
+            padding: 8px 10px;
+            background-color: #0073C1; /* Blue for the button */
+            border-radius: 0px;
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar a:hover {
+            background-color: #005A9E; 
+        }
+
+        /* Middle dark bar styling */
+        .middle-bar {
+            background-color: #3E4C56; /* Slightly lighter dark bar */
+            height: 3rem;
+            display: flex;
+            align-items: center;
+           
+        }           
+        .content {
+            padding: 2em;
+            text-align: center;
+        }
+        table {
+            margin: 0 auto;
+            width: 50%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 1em;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .initialBox{
+            margin-top: 1.5rem;
+            margin-left: 4rem;
+            margin-right: 4rem;
+            background-color: white;
+            padding-bottom: 5rem;
+            
+        }
+        .loginText{
+            color:#3E4C56;
+            font-weight:900;
+            padding-bottom: 1rem;
+
+        }
+        .cardBg{
+            background-color: #eeeef0;
+            border: none;
+            border-radius: 0rem;
+        }
+        .formInp{
+            padding-bottom: 2.5rem;
+        }
+        .inputPd{
+            padding-bottom: 1rem;
+        }
+        .inputStyl{
+            border: none;
+            border-radius: 0rem;
+            height: 2.6rem;
+        }
+        .lostPssw{
+            font-size: 14px;
+        }
+  
+
+
+    /* User Profile Container */
+    .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 10px; /* Adds space between elements */
+    }
+
+    /* Notification Badge */
+    .notification {
+        position: relative;
+    }
+
+    .notification-badge {
+        position: absolute;
+        top: -8px;
+        left: 8px;
+        background-color: red;
+        color: white;
+        font-size: 8px;
+        font-weight: bold;
+        border-radius: 50%;
+        padding: 3px 6px;
+    }
+
+    /* User Name Styling */
+    .user-name {
+        font-size: 16px;
+        color: #2c577b;
+        font-weight: bold;
+    }
+
+    /* Profile Image Styling */
+    .profile-img {
+        height: 40px;
+        width: 60px;
+        border-radius: 50%; /* Makes the image circular */
+        border: 2px solid #afbaf0;
+
+    }
+    .icn{
+        color: #758e9f;
+    }
+ 
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h2 class="text-center text-success">Student Dashboard</h2>
-        <div class="card mt-3">
-            <div class="card-header bg-success text-white">
-                <h4>Your Grade and Comments</h4>
+    <div class="initialBox">
+        <div class="navbar">
+
+            <div>
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
             </div>
-            <div class="card-body">
-                <h5 class="card-title">Grade: {{ grade }}</h5>
-                <!-- Render comments without escaping (vulnerable to XSS) -->
-                <p class="card-text">Comments: {{ comments | safe }}</p>
+        
+            <div class="user-profile">
+                
+                <div class="notification">
+                    <i class="fas fa-bell icn"></i>
+                    <span class="notification-badge">12</span>
+                </div>
+                <div >
+                    <i class="fas fa-comment icn"></i> 
+                </div>
+                <span class="user-name">{{ username }} <strong> ({{role}})</strong></span>
+                <img src="{{ url_for('static', filename='user.png') }}" alt="Profile" class="profile-img">
             </div>
         </div>
+        
+        <div class="middle-bar">
+        
+        </div>
+
+    <!-- Grades Content -->
+    <div class="content">
+        <h1>Welcome, {{ username }}!</h1>
+        <h2>Your Grades</h2>
+        <table>
+            <tr>
+                <th>Subject</th>
+                <th>Grade</th>
+                <th>Comments</th>
+
+            </tr>
+            <tr>
+                <td>Math</td>
+                <td>{{ grade }}</td>
+                <td>{{ comments | safe }}</td>
+            </tr>
+        </table>
+    </div>
     </div>
 </body>
 </html>
-

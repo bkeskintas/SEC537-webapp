@@ -43,11 +43,11 @@ def student_dashboard(student_id):
     c.execute(f"SELECT grade, comments, username FROM grades JOIN users ON grades.student_id = users.id WHERE student_id={student_id}")
     data = c.fetchone()
     conn.close()
-    
+    role= session['role']
     if data:
         grade, comments, username = data
         # Reflect comments directly (vulnerable to XSS)
-        return render_template('grades.html', username=username, grade=grade, comments=comments)
+        return render_template('student_dashboard.html', username=username, grade=grade, comments=comments, role=role)
     else:
         return "No grade found", 404
 
