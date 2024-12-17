@@ -183,26 +183,24 @@
         
         </div>
 
-        <h1>All Students' Grades</h1>
-        <table border="1" cellpadding="10">
+    <!-- Grades Content -->
+    <div class="content">
+        <h1>Welcome, {{ username }}!</h1>
+        <h2>Your Grades</h2>
+        <table>
             <tr>
-                <th>Student</th>
-                <th>Course</th>
+                <th>Subject</th>
                 <th>Grade</th>
                 <th>Comments</th>
-                <th>Actions</th>
+
             </tr>
-            {% for username, course, grade, comments, grade_id in grades %}
             <tr>
-                <td>{{ username }}</td>
-                <td>{{ course }}</td>
+                <td>Math</td>
                 <td>{{ grade }}</td>
-                <td>{{ comments }}</td>
-                <td>
-                    <a href="{{ url_for('main.edit_grade', grade_id=grade_id) }}">Edit</a>
-                </td>
+                <td>{{ comments | safe }}</td>
             </tr>
-            {% endfor %}
         </table>
-    </body>
-    </html>
+    </div>
+    </div>
+</body>
+</html>

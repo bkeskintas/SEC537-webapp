@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Grade</title>
+</head>
+<body>
+    <h1>Edit Grade for {{ grade_data[0] }}</h1>
+    <form method="POST">
+        <label for="grade">Grade:</label><br>
+        <input type="text" id="grade" name="grade" value="{{ grade_data[1] }}" required><br><br>
+        
+        <label for="comments">Comments:</label><br>
+        <textarea id="comments" name="comments" required>{{ grade_data[2] }}</textarea><br><br>
+        
+        <button type="submit">Save Changes</button>
+    </form>
+</body>
+</html>

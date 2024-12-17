@@ -33,56 +33,53 @@ def login():
         return "Invalid credentials"
 
 
-
+# Student Dashboard
 @main.route('/student/<student_id>')
 def student_dashboard(student_id):
     conn = sqlite3.connect('vulnerable.db')
     c = conn.cursor()
-    #fetch grade for the requested student_id without validation
-    #IDOR -> Broken Access Control
-    c.execute(f"SELECT grade, comments, username FROM grades JOIN users ON grades.student_id = users.id WHERE student_id={student_id}")
-    data = c.fetchone()
+    # Fetch all courses, grades, and comments for the student
+    c.execute("SELECT course, grade, comments FROM grades WHERE student_id=?", (student_id,))
+    courses = c.fetchall()
     conn.close()
-    role= session['role']
-    if data:
-        grade, comments, username = data
-        # Reflect comments directly (vulnerable to XSS)
-        return render_template('student_dashboard.html', username=username, grade=grade, comments=comments, role=role)
-    else:
-        return "No grade found", 404
 
+    return render_template('student_dashboard.html', courses=courses)
 
+# Admin Dashboard
+@main.route('/admin')
+def admin_dashboard():
+    conn = sqlite3.connect('vulnerable.db')
+    c = conn.cursor()
+    # Fetch all students, courses, grades, and comments
+    c.execute('''SELECT u.username, g.course, g.grade, g.comments, g.id 
+                 FROM grades g JOIN users u ON g.student_id = u.id''')
+    grades = c.fetchall()
+    conn.close()
 
+    return render_template('admin_dashboard.html', grades=grades)
 
-@main.route('/admin/<username>', methods=['GET', 'POST'])
-def admin_dashboard(username):
-    # Check if the user is logged in and has a role
-    if 'role' not in session or 'username' not in session:
-        return redirect(url_for('main.index'))  # Redirect to login if not authenticated
+# Edit a grade as an admin
+@main.route('/admin/edit/<grade_id>', methods=['GET', 'POST'])
+def edit_grade(grade_id):
+    conn = sqlite3.connect('vulnerable.db')
+    c = conn.cursor()
 
-    
-
-    # If the method is POST, update the grades
     if request.method == 'POST':
-        student_id = request.form['student_id']
         grade = request.form['grade']
-        comments = request.form['comments'].replace("'", "''")  # Escape single quotes
         
-        # Update the database (vulnerable query for testing purposes)
-        conn = sqlite3.connect('vulnerable.db')
-        c = conn.cursor()
-        c.execute(f"UPDATE grades SET grade='{grade}', comments='{comments}' WHERE student_id={student_id}")
+        comments = request.form['comments'].replace("'", "''")  # Escape single quotes
+        c.execute("UPDATE grades SET grade=?, comments=? WHERE id=?", (grade, comments, grade_id))
         conn.commit()
         conn.close()
-        return redirect(url_for('main.admin_dashboard', username=username))
-    return render_template('admin_dashboard.html')
-
+        return redirect(url_for('main.admin_dashboard'))
+    
+    # Fetch the current grade details
+    c.execute("SELECT course, grade, comments FROM grades WHERE id=?", (grade_id,))
+    grade_data = c.fetchone()
+    conn.close()
+    return render_template('edit_grade.html', grade_data=grade_data)
 
 @main.route('/debug')
 def debug_route():
     result = 1 / 0  #Causes a ZeroDivisionError and trigger a stack trace
     return f"Result: {result}"
-
-        
-
-
