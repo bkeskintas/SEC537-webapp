@@ -78,7 +78,10 @@ def admin_dashboard(username):
     return render_template('admin_dashboard.html')
 
 
-
+@main.route('/debug')
+def debug_route():
+    result = 1 / 0  #Causes a ZeroDivisionError and trigger a stack trace
+    return f"Result: {result}"
 
         
 
