@@ -181,7 +181,72 @@
         table th {
             background-color: #f4f4f4;
         }
- 
+        .course{
+            color: white;
+            text-align: center;
+            margin-left: 10px;
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: 60px; 
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            display: none; 
+            z-index: 1000;
+            width: 150px;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 10px 15px;
+            color: #333;
+            text-decoration: none;
+            background-color: white;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: #f4f4f4;
+        }
+
+        .dropdown-menu hr {
+            margin: 0;
+            border: none;
+            border-top: 1px solid #ddd;
+        }
+        .user-profile {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        .grades{
+            font-size: 20px;
+            color:#707072;
+            font-weight: 700;
+        }
+        .profWrapper{
+            height: 8rem;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+        .profPic{
+            height: 100px;
+            width: 70px;
+            border-radius: 50%; /* Makes the image circular */
+            border: 2px solid #afbaf0;
+            margin-right: 1rem;
+            margin-left: 1rem;
+
+        }
+        .name{
+            color: #565555;
+            font-size: 28px;
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
@@ -201,18 +266,36 @@
                 <div >
                     <i class="fas fa-comment icn"></i> 
                 </div>
+                <div class="user-profile" onclick="toggleDropdown()">
                 <span class="user-name">{{ username }} <strong> ({{role}})</strong></span>
                 <img src="{{ url_for('static', filename='user.png') }}" alt="Profile" class="profile-img">
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="#">Profile</a>
+                    <a href="{{ url_for('main.grades', student_id=student_id) }}">Grades</a>
+                    <a href="#">Calendar</a>
+                    <a href="#">Private files</a>
+                    <a href="#">Preferences</a>
+                    <hr>
+                    <a href="/logout"><i class="fas fa-sign-out-alt"></i> Log out</a>
+                </div>
+                </div>
             </div>
         </div>
         
         <div class="middle-bar">
+            <a class="course" href="{{ url_for('main.student_dashboard', student_id=student_id) }}">My Courses</a>
         
         </div>
 
 
-
+        <div class="profWrapper">
+            
+            <img src="{{ url_for('static', filename='user.png') }}" alt="Profile" class="profPic">
+            <span class="name">{{ username }} <strong> ({{role}})</strong></span>
+        </div>
         <div class="grades-container">
+            <div class="grades">Grades</div>
+            <hr style="border: 1px solid rgb(231, 232, 237);  margin-bottom: 2rem;">
             <table>
                 <thead>
                     <tr>
@@ -232,6 +315,21 @@
                 </tbody>
             </table>
         </div>
-    </body>
+   <!-- JavaScript to Toggle the Dropdown -->
+   <script>
+    function toggleDropdown() {
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        dropdownMenu.style.display = (dropdownMenu.style.display === 'block') ? 'none' : 'block';
+    }
+
+    // Close the dropdown if clicked outside
+    window.onclick = function(event) {
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        const userProfile = document.querySelector('.user-profile');
+        if (!userProfile.contains(event.target)) {
+            dropdownMenu.style.display = 'none';
+        }
+    }
+</script>
 </body>
 </html>

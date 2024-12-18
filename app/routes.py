@@ -57,7 +57,7 @@ def grades(student_id):
     courses = c.fetchall()
     conn.close()
 
-    return render_template('grades.html', courses=courses, username= username, role=role)
+    return render_template('grades.html', courses=courses, username= username, role=role, student_id=student_id)
 
 
 # Admin Dashboard
