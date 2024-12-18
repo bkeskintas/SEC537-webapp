@@ -82,7 +82,7 @@ def edit_grade(grade_id):
     if request.method == 'POST':
         grade = request.form['grade']
         
-        comments = request.form['comments'].replace("'", "''")  # Escape single quotes
+        comments = request.form['comments']
         c.execute("UPDATE grades SET grade=?, comments=? WHERE id=?", (grade, comments, grade_id))
         conn.commit()
         conn.close()

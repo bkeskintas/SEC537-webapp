@@ -37,8 +37,6 @@ def init_db():
     c.execute('SELECT COUNT(*) FROM grades')
     if c.fetchone()[0] == 0:  # Only insert if the table is empty
         grades = [
-            (1, 'Math', 'A', 'Excellent performance'),
-            (1, 'Physics', 'B', 'Good effort'),
             (2, 'Human Computer Interaction', 'A', 'Outstanding'),
             (2, 'Cybersecurity Practices and App.', 'A', 'Great job!'),
             (2, 'Fundamentals of Computing', 'A', 'Outstanding'),

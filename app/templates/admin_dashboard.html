@@ -112,13 +112,42 @@
   
 
 
-    /* User Profile Container */
-    .user-profile {
-        display: flex;
-        align-items: center;
-        gap: 10px; /* Adds space between elements */
-    }
+        .dropdown-menu {
+            position: absolute;
+            top: 60px; 
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            display: none; 
+            z-index: 1000;
+            width: 150px;
+        }
 
+        .dropdown-menu a {
+            display: block;
+            padding: 10px 15px;
+            color: #333;
+            text-decoration: none;
+            background-color: white;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: #f4f4f4;
+        }
+
+        .dropdown-menu hr {
+            margin: 0;
+            border: none;
+            border-top: 1px solid #ddd;
+        }
+        .user-profile {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
     /* Notification Badge */
     .notification {
         position: relative;
@@ -154,7 +183,23 @@
     .icn{
         color: #758e9f;
     }
- 
+    .header{
+        color:#6e6f6f;
+        padding-bottom: 1rem;
+        font-size: 28px;
+        font-weight: 600;
+    }
+    .wrapper{
+        display: flex;
+        flex-direction: column;
+        padding: 2rem;
+    }
+    table {
+    margin-left: 0; /* Align the table to the left */
+    width: 50%; /* Optional: Adjust as needed */
+    border-collapse: collapse;
+    padding: 2rem;
+}
     </style>
 </head>
 <body>
@@ -174,35 +219,64 @@
                 <div >
                     <i class="fas fa-comment icn"></i> 
                 </div>
-                <span class="user-name">{{ username }} <strong> ({{role}})</strong></span>
+                <div class="user-profile" onclick="toggleDropdown()">
+                <span class="user-name">Admin</span>
                 <img src="{{ url_for('static', filename='user.png') }}" alt="Profile" class="profile-img">
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="#">Profile</a>
+                    <a href="{{ url_for('main.grades', student_id=student_id) }}">Grades</a>
+                    <a href="#">Calendar</a>
+                    <a href="#">Private files</a>
+                    <a href="#">Preferences</a>
+                    <hr>
+                    <a href="/logout"><i class="fas fa-sign-out-alt"></i> Log out</a>
+                </div>
+                </div>
             </div>
         </div>
         
         <div class="middle-bar">
         
         </div>
+        <div class="wrapper">
+        <div class="header"> All Students' Grades</div>
+        
+            <table >
+                <tr>
+                    <th>Student</th>
+                    <th>Course</th>
+                    <th>Grade</th>
+                    <th>Comments</th>
+                    <th>Actions</th>
+                </tr>
+                {% for username, course, grade, comments, grade_id in grades %}
+                <tr>
+                    <td>{{ username }}</td>
+                    <td>{{ course }}</td>
+                    <td>{{ grade }}</td>
+                    <td>{{ comments }}</td>
+                    <td>
+                        <a href="{{ url_for('main.edit_grade', grade_id=grade_id) }}">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>      
+    </div>
+    <!-- JavaScript to Toggle the Dropdown -->
+    <script>
+        function toggleDropdown() {
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            dropdownMenu.style.display = (dropdownMenu.style.display === 'block') ? 'none' : 'block';
+        }
 
-        <h1>All Students' Grades</h1>
-        <table border="1" cellpadding="10">
-            <tr>
-                <th>Student</th>
-                <th>Course</th>
-                <th>Grade</th>
-                <th>Comments</th>
-                <th>Actions</th>
-            </tr>
-            {% for username, course, grade, comments, grade_id in grades %}
-            <tr>
-                <td>{{ username }}</td>
-                <td>{{ course }}</td>
-                <td>{{ grade }}</td>
-                <td>{{ comments }}</td>
-                <td>
-                    <a href="{{ url_for('main.edit_grade', grade_id=grade_id) }}">Edit</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
+        // Close the dropdown if clicked outside
+        window.onclick = function(event) {
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            const userProfile = document.querySelector('.user-profile');
+            if (!userProfile.contains(event.target)) {
+                dropdownMenu.style.display = 'none';
+            }
+        }
+    </script>
     </body>
     </html>

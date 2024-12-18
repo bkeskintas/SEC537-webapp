@@ -309,7 +309,7 @@
                     <tr>
                         <td>{{course}}</td> <!-- Static course for now -->
                         <td>{{ grade  }}</td>
-                        <td>{{ comment }}</td>
+                        <td>{{ comment | safe  }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
