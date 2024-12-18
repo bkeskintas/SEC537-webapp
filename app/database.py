@@ -39,6 +39,9 @@ def init_db():
         grades = [
             (1, 'Math', 'A', 'Excellent performance'),
             (1, 'Physics', 'B', 'Good effort'),
+            (2, 'Human Computer Interaction', 'A', 'Outstanding'),
+            (2, 'Cybersecurity Practices and App.', 'A', 'Great job!'),
+            (2, 'Fundamentals of Computing', 'A', 'Outstanding'),
             (2, 'Math', 'A', 'Great job!'),
             (2, 'Physics', 'A', 'Outstanding'),
             (3, 'Math', 'C', 'Needs improvement'),

@@ -154,6 +154,33 @@
     .icn{
         color: #758e9f;
     }
+    .grades-container {
+           
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+           
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th, table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #f4f4f4;
+        }
  
     </style>
 </head>
@@ -183,24 +210,28 @@
         
         </div>
 
-    <!-- Grades Content -->
-    <div class="content">
-        <h1>Welcome, {{ username }}!</h1>
-        <h2>Your Grades</h2>
-        <table>
-            <tr>
-                <th>Subject</th>
-                <th>Grade</th>
-                <th>Comments</th>
 
-            </tr>
-            <tr>
-                <td>Math</td>
-                <td>{{ grade }}</td>
-                <td>{{ comments | safe }}</td>
-            </tr>
-        </table>
-    </div>
-    </div>
+
+        <div class="grades-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>Grade</th>
+                        <th>Feedback</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course, grade, comment in courses %}
+                    <tr>
+                        <td>{{course}}</td> <!-- Static course for now -->
+                        <td>{{ grade  }}</td>
+                        <td>{{ comment }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </body>
 </body>
 </html>

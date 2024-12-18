@@ -1,5 +1,4 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
-
 import sqlite3
 
 main = Blueprint('main', __name__)
@@ -38,12 +37,28 @@ def login():
 def student_dashboard(student_id):
     conn = sqlite3.connect('vulnerable.db')
     c = conn.cursor()
+    username=session['username'] 
+    role=  session['role'] 
     # Fetch all courses, grades, and comments for the student
     c.execute("SELECT course, grade, comments FROM grades WHERE student_id=?", (student_id,))
     courses = c.fetchall()
     conn.close()
 
-    return render_template('student_dashboard.html', courses=courses)
+    return render_template('student_dashboard.html', courses=courses, username= username, role=role, student_id=student_id)
+
+@main.route('/student/<student_id>/grades')
+def grades(student_id):
+    conn = sqlite3.connect('vulnerable.db')
+    c = conn.cursor()
+    username=session['username'] 
+    role=  session['role'] 
+    # Fetch all courses, grades, and comments for the student
+    c.execute("SELECT course, grade, comments FROM grades WHERE student_id=?", (student_id,))
+    courses = c.fetchall()
+    conn.close()
+
+    return render_template('grades.html', courses=courses, username= username, role=role)
+
 
 # Admin Dashboard
 @main.route('/admin')
@@ -83,3 +98,8 @@ def edit_grade(grade_id):
 def debug_route():
     result = 1 / 0  #Causes a ZeroDivisionError and trigger a stack trace
     return f"Result: {result}"
+
+@main.route('/logout')
+def logout():
+    session.clear()
+    return redirect("/")
