@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session
+from flask import Blueprint, render_template, render_template_string, request, redirect, url_for, session
 import sqlite3
 
 import requests
