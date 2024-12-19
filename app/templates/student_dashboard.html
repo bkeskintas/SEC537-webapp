@@ -294,7 +294,7 @@
                 <div class="star">*</div>
                 <div class="course-view">Course overview </div>
             </div>
-            <div class="card-container">
+            <div style="cursor: pointer;" class="card-container" onclick="redirectToResource()">
                 {% for course in courses %}
                 <div class="card-wrapper">
                     <div class="card"></h2> </div>
@@ -310,13 +310,15 @@
             dropdownMenu.style.display = (dropdownMenu.style.display === 'block') ? 'none' : 'block';
         }
 
-        // Close the dropdown if clicked outside
         window.onclick = function(event) {
             const dropdownMenu = document.getElementById('dropdownMenu');
             const userProfile = document.querySelector('.user-profile');
             if (!userProfile.contains(event.target)) {
                 dropdownMenu.style.display = 'none';
             }
+        }
+        function redirectToResource() {
+            window.location.href = "{{ url_for('main.upload_resource',  student_id=student_id) }}";
         }
     </script>
 </body>

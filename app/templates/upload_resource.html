@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUCourse</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #eeeef0;
+        }
+
+        .navbar {
+            display: flexbox;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            background-image: url("{{ url_for('static', filename='navbar.png') }}");
+        }
+
+        .navbar img {
+            height: 90px;
+            /* Adjust logo size */
+            padding: 0.1rem;
+        }
+
+        .navbar .right-links {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar a {
+            color: white;
+
+            margin-left: 20px;
+            font-size: 14px;
+            padding: 8px 10px;
+            background-color: #0073C1;
+            /* Blue for the button */
+            border-radius: 0px;
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar a:hover {
+            background-color: #005A9E;
+        }
+
+        /* Middle dark bar styling */
+        .middle-bar {
+            background-color: #3E4C56;
+            /* Slightly lighter dark bar */
+            height: 3rem;
+            display: flex;
+            align-items: center;
+
+        }
+
+        .content {
+            padding: 2em;
+            text-align: center;
+        }
+
+        .initialBox {
+            margin-top: 1.5rem;
+            margin-left: 4rem;
+            margin-right: 4rem;
+            background-color: white;
+            padding-bottom: 5rem;
+
+        }
+
+        .loginText {
+            color: #3E4C56;
+            font-weight: 900;
+            padding-bottom: 1rem;
+
+        }
+
+        .notification {
+            position: relative;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            left: 8px;
+            background-color: red;
+            color: white;
+            font-size: 8px;
+            font-weight: bold;
+            border-radius: 50%;
+            padding: 3px 6px;
+        }
+
+        .user-name {
+            font-size: 16px;
+            color: #2c577b;
+            font-weight: bold;
+        }
+
+        /* Profile Image Styling */
+        .profile-img {
+            height: 40px;
+            width: 60px;
+            border-radius: 50%;
+            /* Makes the image circular */
+            border: 2px solid #afbaf0;
+
+        }
+
+        .icn {
+            color: #758e9f;
+        }
+
+        .grades-container {
+
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 60px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1000;
+            width: 150px;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 10px 15px;
+            color: #333;
+            text-decoration: none;
+            background-color: white;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: #f4f4f4;
+        }
+
+        .dropdown-menu hr {
+            margin: 0;
+            border: none;
+            border-top: 1px solid #ddd;
+        }
+
+        .user-profile {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 800px;
+            background-color: #f3f2f6;
+            padding: 20px;
+           
+            margin-top: 2rem;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+         
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #0073C1;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #005A9E;
+        }
+
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+
+        .course {
+            color: white;
+            text-align: center;
+            margin-left: 10px;
+        }
+
+        .urlWrapper {
+            display: flex;
+            align-items: start;
+            justify-content: flex-start;
+
+        }
+        .header{
+        color:#6e6f6f;
+        padding-bottom: 2rem;
+        font-size: 28px;
+        font-weight: 600;
+    }
+    .btn{
+        margin-top: 2rem;
+        margin-right: -10px;
+       
+    }
+    </style>
+</head>
+
+<body>
+    <div class="initialBox">
+        <div class="navbar">
+
+            <div>
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+            </div>
+
+            <div class="user-profile">
+
+                <div class="notification">
+                    <i class="fas fa-bell icn"></i>
+                    <span class="notification-badge">12</span>
+                </div>
+                <div>
+                    <i class="fas fa-comment icn"></i>
+                </div>
+                <div class="user-profile" onclick="toggleDropdown()">
+                    <span class="user-name">{{ username }} <strong> ({{role}})</strong></span>
+                    <img src="{{ url_for('static', filename='user.png') }}" alt="Profile" class="profile-img">
+                    <div class="dropdown-menu" id="dropdownMenu">
+                        <a href="#">Profile</a>
+                        <a href="{{ url_for('main.grades', student_id=student_id) }}">Grades</a>
+                        <a href="#">Calendar</a>
+                        <a href="#">Private files</a>
+                        <a href="#">Preferences</a>
+                        <hr>
+                        <a href="/logout"><i class="fas fa-sign-out-alt"></i> Log out</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="middle-bar">
+            <a class="course" href="{{ url_for('main.student_dashboard', student_id=student_id) }}">My Courses</a>
+
+        </div>
+        <div class="urlWrapper">
+            <div class="container">
+                <div class="header">Upload External Resource</div>
+                <form method="POST" action="{{url_for('main.upload_resource', student_id = student_id)}}">
+                    <label for="url">Resource URL:</label>
+
+                    <input type="text" id="url" name="url" placeholder="URL" required>
+                    <div class="btn"><button type="submit">Preview</button></div>
+                </form>
+
+                {% if url and content %}
+                <h2>Preview of: {{ url }}</h2>
+                <pre>{{ content }}</pre>
+                {% endif %}
+            </div>
+        </div>
+        <script>
+            function toggleDropdown() {
+                const dropdownMenu = document.getElementById('dropdownMenu');
+                dropdownMenu.style.display = (dropdownMenu.style.display === 'block') ? 'none' : 'block';
+            }
+
+            window.onclick = function (event) {
+                const dropdownMenu = document.getElementById('dropdownMenu');
+                const userProfile = document.querySelector('.user-profile');
+                if (!userProfile.contains(event.target)) {
+                    dropdownMenu.style.display = 'none';
+                }
+            }
+        </script>
+</body>
+
+</html>

@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
 import sqlite3
 
+import requests
+
 main = Blueprint('main', __name__)
 
 @main.route('/')
@@ -93,6 +95,29 @@ def edit_grade(grade_id):
     grade_data = c.fetchone()
     conn.close()
     return render_template('edit_grade.html', grade_data=grade_data)
+
+@main.route('/student/<student_id>/upload_resource', methods=['GET', 'POST'])
+def upload_resource(student_id):
+    if request.method == 'POST':
+        url = request.form.get('url')
+
+        try:
+            # Vulnerable to SSRF: Fetch the URL content
+            response = requests.get(url, timeout=5)
+            content_type = response.headers.get('Content-Type', '')
+
+            if 'text/html' in content_type:
+                content = response.text  # Display HTML content
+            elif 'application/pdf' in content_type:
+                content = "Preview not supported for PDFs. Download the document directly."
+            else:
+                content = "Unsupported file type."
+        except Exception as e:
+            content = f"Error fetching resource: {str(e)}"
+
+        return render_template('upload_resource.html', url=url, content=content, student_id=student_id)
+
+    return render_template('upload_resource.html', student_id=student_id)
 
 @main.route('/debug')
 def debug_route():
