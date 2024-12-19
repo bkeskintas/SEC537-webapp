@@ -98,6 +98,8 @@ def edit_grade(grade_id):
 
 @main.route('/student/<student_id>/upload_resource', methods=['GET', 'POST'])
 def upload_resource(student_id):
+    username=session['username'] 
+    role=  session['role']
     if request.method == 'POST':
         url = request.form.get('url')
 
@@ -115,9 +117,9 @@ def upload_resource(student_id):
         except Exception as e:
             content = f"Error fetching resource: {str(e)}"
 
-        return render_template('upload_resource.html', url=url, content=content, student_id=student_id)
+        return render_template('upload_resource.html', url=url, content=content, student_id=student_id, username= username, role=role)
 
-    return render_template('upload_resource.html', student_id=student_id)
+    return render_template('upload_resource.html', student_id=student_id, username= username, role=role)
 
 @main.route('/debug')
 def debug_route():
