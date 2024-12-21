@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, render_template_string, request, redirect, url_for, session
+import os
+from flask import Blueprint, current_app, render_template, render_template_string, request, redirect, url_for, session
 import sqlite3
 
 import requests
@@ -130,3 +131,23 @@ def debug_route():
 def logout():
     session.clear()
     return redirect("/")
+
+#For SSRF -> DOS Example
+@main.route('/student/<student_id>/upload', methods=['GET', 'POST'])
+def upload_file(student_id):
+
+    username=session['username'] 
+    role=  session['role']
+
+    if request.method == 'POST':
+        uploaded_file = request.files.get('file')
+
+        # Vulnerable: No size or type validation
+        if uploaded_file:
+            file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], uploaded_file.filename)
+            uploaded_file.save(file_path)  # Save the uploaded file
+            return f"File uploaded successfully: {uploaded_file.filename}"
+
+        return "No file uploaded!"
+
+    return render_template('upload_project.html', student_id=student_id, username=username, role=role)

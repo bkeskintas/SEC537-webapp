@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template_string, request
 
 def create_app():
@@ -5,6 +6,10 @@ def create_app():
     #For Security Misconfigs
     app.config['DEBUG'] = True  #Vulnerable to exposing sensitive information
     app.config['SECRET_KEY'] = 'your_secret_key'  # Change this in production
+    app.config['UPLOAD_FOLDER'] = '/tmp/uploads'  # Vulnerable folder for uploads
+
+    if not os.path.exists(app.config['UPLOAD_FOLDER']):
+        os.makedirs(app.config['UPLOAD_FOLDER'])
     
     # Initialize database setup
     from app.database import init_db
