@@ -1,0 +1,6 @@
+projectKey=task3Sonar
+serverUrl=http://localhost:9000
+serverVersion=24.12.0.100206
+dashboardUrl=http://localhost:9000/dashboard?id=task3Sonar
+ceTaskId=fe092f1d-f286-4d02-b868-b75c4f846705
+ceTaskUrl=http://localhost:9000/api/ce/task?id=fe092f1d-f286-4d02-b868-b75c4f846705
