@@ -1,7 +1,6 @@
 import os
 from flask import Blueprint, current_app, render_template, render_template_string, request, redirect, url_for, session
 import sqlite3
-
 import requests
 
 main = Blueprint('main', __name__)
@@ -19,14 +18,13 @@ def login():
     query = f"SELECT * FROM users WHERE username='{username}' AND password='{password}'"
     conn = sqlite3.connect('vulnerable.db')
     c = conn.cursor()
-    c.execute(query)  # No parameterized query
+    c.execute(query)  #No parameterized query
     user = c.fetchone()
     conn.close()
     
     if user:
-        role = user[3]
-        session['username'] = user[1]  # Store username in session
-        session['role'] = user[3]      # Store role in session
+        session['username'] = user[1]  
+        session['role'] = user[3]     
         if user[3] == 'admin':
             return redirect(url_for('main.admin_dashboard', username=username))
         else:
@@ -35,7 +33,6 @@ def login():
         return "Invalid credentials"
 
 
-# Student Dashboard
 @main.route('/student/<student_id>')
 def student_dashboard(student_id):
     conn = sqlite3.connect('vulnerable.db')
@@ -43,7 +40,7 @@ def student_dashboard(student_id):
     username=session['username'] 
     role=  session['role'] 
     # Fetch all courses, grades, and comments for the student
-    c.execute("SELECT course, grade, comments FROM grades WHERE student_id=?", (student_id,))
+    c.execute(f"SELECT course, grade, comments FROM grades WHERE student_id='{student_id}'")
     courses = c.fetchall()
     conn.close()
 
@@ -56,16 +53,17 @@ def grades(student_id):
     username=session['username'] 
     role=  session['role'] 
     # Fetch all courses, grades, and comments for the student
-    c.execute("SELECT course, grade, comments FROM grades WHERE student_id=?", (student_id,))
+    c.execute(f"SELECT course, grade, comments FROM grades WHERE student_id='{student_id}'")
     courses = c.fetchall()
     conn.close()
 
     return render_template('grades.html', courses=courses, username= username, role=role, student_id=student_id)
 
 
-# Admin Dashboard
+#Admin Dashboard
 @main.route('/admin')
 def admin_dashboard():
+    #No role verification (causes Broken Access Control)
     conn = sqlite3.connect('vulnerable.db')
     c = conn.cursor()
     # Fetch all students, courses, grades, and comments
@@ -76,7 +74,6 @@ def admin_dashboard():
 
     return render_template('admin_dashboard.html', grades=grades)
 
-# Edit a grade as an admin
 @main.route('/admin/edit/<grade_id>', methods=['GET', 'POST'])
 def edit_grade(grade_id):
     conn = sqlite3.connect('vulnerable.db')
@@ -86,13 +83,12 @@ def edit_grade(grade_id):
         grade = request.form['grade']
         
         comments = request.form['comments']
-        c.execute("UPDATE grades SET grade=?, comments=? WHERE id=?", (grade, comments, grade_id))
+        c.execute(f"UPDATE grades SET grade='{grade}', comments='{comments}' WHERE id='{grade_id}'")
         conn.commit()
         conn.close()
         return redirect(url_for('main.admin_dashboard'))
     
-    # Fetch the current grade details
-    c.execute("SELECT course, grade, comments FROM grades WHERE id=?", (grade_id,))
+    c.execute(f"SELECT course, grade, comments FROM grades WHERE id='{grade_id}'")
     grade_data = c.fetchone()
     conn.close()
     return render_template('edit_grade.html', grade_data=grade_data)
@@ -105,12 +101,12 @@ def upload_resource(student_id):
         url = request.form.get('url')
 
         try:
-            # Vulnerable to SSRF: Fetch the URL content
+            #Vulnerable to SSRF: Fetch the URL content
             response = requests.get(url, timeout=5)
             content_type = response.headers.get('Content-Type', '')
 
             if 'text/html' in content_type:
-                content = response.text  # Display HTML content
+                content = response.text  #Display HTML content
             elif 'application/pdf' in content_type:
                 content = "Preview not supported for PDFs. Download the document directly."
             else:
@@ -142,7 +138,7 @@ def upload_file(student_id):
     if request.method == 'POST':
         uploaded_file = request.files.get('file')
 
-        # Vulnerable: No size or type validation
+        #Vulnerable: No size or type validation
         if uploaded_file:
             file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], uploaded_file.filename)
             uploaded_file.save(file_path)  # Save the uploaded file
