@@ -170,37 +170,43 @@ def upload_assignment(student_id, course):
     conn = sqlite3.connect('vulnerable.db')
     c = conn.cursor()
 
-    #check if an assignment already exists for this student and course
+    # Check if an assignment already exists for this student and course
     c.execute("SELECT file_name, file_data FROM assignments WHERE student_id=? AND course=?", (student_id, course))
     existing_assignment = c.fetchone()
 
     file_name = None
+    deserialized_data = None
     if existing_assignment:
         file_name = existing_assignment[0]  # Existing file name
+        try:
+            # Insecure Deserialization
+            deserialized_data = pickle.loads(existing_assignment[1])
+        except Exception as e:
+            deserialized_data = f"Error deserializing data: {str(e)}"
 
     if request.method == 'POST':
         uploaded_file = request.files.get('file')
 
-        #Vulnerable: No size or type validation (SSRF)
+        # Vulnerable: No size or type validation (SSRF)
         if uploaded_file:
-            # Serialize file data and store it in the database (Software and Data Integrity Failures)
+            # Serialize file data and store it in the database (Insecure Serialization)
             serialized_data = pickle.dumps(uploaded_file.read())
             file_name = uploaded_file.filename
             if existing_assignment:
-                #update existing assignment
+                # Update existing assignment
                 c.execute("UPDATE assignments SET file_data=?, file_name=? WHERE student_id=? AND course=?", 
                           (serialized_data, file_name, student_id, course))
             else:
-                #new assignment
+                # New assignment
                 c.execute("INSERT INTO assignments (student_id, course, file_data, file_name) VALUES (?, ?, ?, ?)", 
                           (student_id, course, serialized_data, file_name))
             conn.commit()
             conn.close()
             return render_template('successfully_upload.html', 
-                           course=course, 
-                           student_id=student_id, 
-                           username=username, 
-                           role=role,)
+                                   course=course, 
+                                   student_id=student_id, 
+                                   username=username, 
+                                   role=role,)
 
         return "No file uploaded!", 400
 
@@ -210,6 +216,5 @@ def upload_assignment(student_id, course):
                            student_id=student_id, 
                            username=username, 
                            role=role, 
-                           file_name=file_name)
-
-
+                           file_name=file_name, 
+                           deserialized_data=deserialized_data)
