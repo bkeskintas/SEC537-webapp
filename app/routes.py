@@ -2,6 +2,7 @@ import os
 from flask import Blueprint, current_app, render_template, render_template_string, request, redirect, url_for, session
 import sqlite3
 import requests
+import pickle
 
 main = Blueprint('main', __name__)
 
@@ -95,18 +96,20 @@ def edit_grade(grade_id):
 
 @main.route('/student/<student_id>/upload_resource', methods=['GET', 'POST'])
 def upload_resource(student_id):
-    username=session['username'] 
-    role=  session['role']
+    username = session['username'] 
+    role = session['role']
+    
     if request.method == 'POST':
-        url = request.form.get('url')
+        #url = request.form.get('url')
+        serialized_data = request.form.get('url')
 
         try:
-            #Vulnerable to SSRF: Fetch the URL content
-            response = requests.get(url, timeout=5)
+            # Vulnerable to SSRF: Fetch the URL content
+            response = requests.get(serialized_data, timeout=5)
             content_type = response.headers.get('Content-Type', '')
 
             if 'text/html' in content_type:
-                content = response.text  #Display HTML content
+                content = response.text  # Display HTML content
             elif 'application/pdf' in content_type:
                 content = "Preview not supported for PDFs. Download the document directly."
             else:
@@ -114,9 +117,39 @@ def upload_resource(student_id):
         except Exception as e:
             content = f"Error fetching resource: {str(e)}"
 
-        return render_template('upload_resource.html', url=url, content=content, student_id=student_id, username= username, role=role)
+        # Vulnerable Deserialization
+        if serialized_data:
+            try:
+                # Vulnerable: Deserializing untrusted data without validation
+                deserialized_data = pickle.loads(serialized_data)
+                content += f"<br>Deserialized Data: {deserialized_data}"
+            except Exception as e:
+                content += f"<br>Error during deserialization: {str(e)}"
 
-    return render_template('upload_resource.html', student_id=student_id, username= username, role=role)
+        return render_template('upload_resource.html', url=serialized_data, content=content, student_id=student_id, username=username, role=role)
+
+    return render_template('upload_resource.html', student_id=student_id, username=username, role=role)
+
+@main.route('/student/<student_id>/view_assignment/<course>')
+def view_assignment(student_id, course):
+    username = session.get('username')
+    role = session.get('role')
+
+    conn = sqlite3.connect('vulnerable.db')
+    c = conn.cursor()
+    c.execute("SELECT file_data FROM assignments WHERE student_id=? AND course=?", (student_id, course))
+    data = c.fetchone()
+    conn.close()
+
+    if data:
+        try:
+            #Vulnerable deserialization of file data
+            deserialized_data = pickle.loads(data[0])
+            return f"Assignment Content for {course}: {deserialized_data[:200]} (truncated)"
+        except Exception as e:
+            return f"Error deserializing assignment: {str(e)}", 500
+
+    return "No assignment found for this course.", 404
 
 @main.route('/debug')
 def debug_route():
@@ -128,22 +161,55 @@ def logout():
     session.clear()
     return redirect("/")
 
-#For SSRF -> DOS Example
-@main.route('/student/<student_id>/upload', methods=['GET', 'POST'])
-def upload_file(student_id):
+#For SSRF -> DOS Example && Software and Data Integrity Failures -> Insecure Deserialization
+@main.route('/student/<student_id>/upload_assignment/<course>', methods=['GET', 'POST'])
+def upload_assignment(student_id, course):
+    username = session.get('username')
+    role = session.get('role')
 
-    username=session['username'] 
-    role=  session['role']
+    conn = sqlite3.connect('vulnerable.db')
+    c = conn.cursor()
+
+    #check if an assignment already exists for this student and course
+    c.execute("SELECT file_name, file_data FROM assignments WHERE student_id=? AND course=?", (student_id, course))
+    existing_assignment = c.fetchone()
+
+    file_name = None
+    if existing_assignment:
+        file_name = existing_assignment[0]  # Existing file name
 
     if request.method == 'POST':
         uploaded_file = request.files.get('file')
 
-        #Vulnerable: No size or type validation
+        #Vulnerable: No size or type validation (SSRF)
         if uploaded_file:
-            file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], uploaded_file.filename)
-            uploaded_file.save(file_path)  # Save the uploaded file
-            return f"File uploaded successfully: {uploaded_file.filename}"
+            # Serialize file data and store it in the database (Software and Data Integrity Failures)
+            serialized_data = pickle.dumps(uploaded_file.read())
+            file_name = uploaded_file.filename
+            if existing_assignment:
+                #update existing assignment
+                c.execute("UPDATE assignments SET file_data=?, file_name=? WHERE student_id=? AND course=?", 
+                          (serialized_data, file_name, student_id, course))
+            else:
+                #new assignment
+                c.execute("INSERT INTO assignments (student_id, course, file_data, file_name) VALUES (?, ?, ?, ?)", 
+                          (student_id, course, serialized_data, file_name))
+            conn.commit()
+            conn.close()
+            return render_template('successfully_upload.html', 
+                           course=course, 
+                           student_id=student_id, 
+                           username=username, 
+                           role=role,)
 
-        return "No file uploaded!"
+        return "No file uploaded!", 400
 
-    return render_template('upload_project.html', student_id=student_id, username=username, role=role)
+    conn.close()
+    return render_template('upload_assignment.html', 
+                           course=course, 
+                           student_id=student_id, 
+                           username=username, 
+                           role=role, 
+                           file_name=file_name)
+
+

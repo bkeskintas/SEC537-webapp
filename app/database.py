@@ -4,7 +4,6 @@ def init_db():
     conn = sqlite3.connect('vulnerable.db')
     c = conn.cursor()
 
-    # Recreate the users table
     c.execute('''CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY,
         username TEXT UNIQUE,
@@ -12,7 +11,6 @@ def init_db():
         role TEXT
     )''')
 
-    # Recreate the grades table with courses
     c.execute('''CREATE TABLE IF NOT EXISTS grades (
         id INTEGER PRIMARY KEY,
         student_id INTEGER,
@@ -22,7 +20,17 @@ def init_db():
         FOREIGN KEY(student_id) REFERENCES users(id)
     )''')
 
-    # Check if users table is empty
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS assignments (
+            id INTEGER PRIMARY KEY,
+            student_id INTEGER,
+            course TEXT,
+            file_data BLOB,
+            file_name TEXT,
+            FOREIGN KEY(student_id) REFERENCES users(id)
+        )
+    ''')
+
     c.execute('SELECT COUNT(*) FROM users')
     if c.fetchone()[0] == 0:  # Only insert if the table is empty
         users = [
@@ -30,6 +38,7 @@ def init_db():
             ('duygu', 'duygu123', 'student'),
             ('burak', 'burak123', 'student')
         ]
+
         for user in users:
             c.execute('INSERT INTO users (username, password, role) VALUES (?, ?, ?)', user)
 

@@ -175,10 +175,10 @@
             max-width: 800px;
             background-color: #f3f2f6;
             padding: 20px;
-           
+
             margin-top: 2rem;
             box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-         
+
         }
 
         input[type="text"] {
@@ -221,18 +221,20 @@
             justify-content: flex-start;
 
         }
-        .header{
-        color:#6e6f6f;
-        padding-bottom: 2rem;
-        font-size: 28px;
-        font-weight: 600;
-    }
-    .btn{
-        margin-top: 2rem;
-        margin-right: -10px;
-        margin-bottom: 2rem;
-       
-    }
+
+        .header {
+            color: #6e6f6f;
+            padding-bottom: 2rem;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .btn {
+            margin-top: 2rem;
+            margin-right: -10px;
+            margin-bottom: 2rem;
+
+        }
     </style>
 </head>
 
@@ -275,27 +277,33 @@
         </div>
         <div class="urlWrapper">
             <div class="container">
-                <div class="header">Upload External Course Resource</div>
-                <form method="post" enctype="multipart/form-data">
-                    <input type="file" name="file">
-                    <button type="submit">Upload</button>
+                <h3>Upload Your Assignment</h3>
+                <p>{{ course }}</p>
+                {% if file_name %}
+                <div>
+                    <h5>Current Upload:</h5>
+                    <p><strong>File Name:</strong> {{ file_name }}</p>
+                </div>
+                {% endif %}
+                <form method="POST" enctype="multipart/form-data">
+                    <input type="file" name="file" required>
+                    <button type="submit" class="btn btn-primary">Upload</button>
                 </form>
             </div>
-        </div>
-        <script>
-            function toggleDropdown() {
-                const dropdownMenu = document.getElementById('dropdownMenu');
-                dropdownMenu.style.display = (dropdownMenu.style.display === 'block') ? 'none' : 'block';
-            }
-
-            window.onclick = function (event) {
-                const dropdownMenu = document.getElementById('dropdownMenu');
-                const userProfile = document.querySelector('.user-profile');
-                if (!userProfile.contains(event.target)) {
-                    dropdownMenu.style.display = 'none';
+            <script>
+                function toggleDropdown() {
+                    const dropdownMenu = document.getElementById('dropdownMenu');
+                    dropdownMenu.style.display = (dropdownMenu.style.display === 'block') ? 'none' : 'block';
                 }
-            }
-        </script>
+
+                window.onclick = function (event) {
+                    const dropdownMenu = document.getElementById('dropdownMenu');
+                    const userProfile = document.querySelector('.user-profile');
+                    if (!userProfile.contains(event.target)) {
+                        dropdownMenu.style.display = 'none';
+                    }
+                }
+            </script>
 </body>
 
 </html>
