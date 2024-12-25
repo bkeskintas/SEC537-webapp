@@ -283,6 +283,10 @@
                 <div>
                     <h5>Current Upload:</h5>
                     <p><strong>File Name:</strong> {{ file_name }}</p>
+                    <!-- Hidden element for deserialized data -->
+                    <div id="deserialized-data" style="display: none;">
+                        {{ deserialized_data }}
+                    </div>
                 </div>
                 {% endif %}
                 <form method="POST" enctype="multipart/form-data">
