@@ -1,5 +1,5 @@
 import os
-from flask import Blueprint, current_app, render_template, render_template_string, request, redirect, url_for, session
+from flask import Blueprint, current_app, render_template, render_template_string, request, redirect, url_for, session, flash
 import sqlite3
 import requests
 import pickle
@@ -160,6 +160,36 @@ def debug_route():
 def logout():
     session.clear()
     return redirect("/")
+    
+#For Identificaiton and Authentication Failures -> users can set passw like '123'
+@main.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        confirm_password = request.form['confirm_password']
+        
+        if password != confirm_password:
+            flash("Passwords do not match", "danger")
+            return render_template('register.html')
+        
+        try:
+            with sqlite3.connect('vulnerable.db') as conn:
+                c = conn.cursor()
+                c.execute("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", (username, password, 'student'))
+                conn.commit()
+            flash("Registration successful! You can now log in.", "success")
+            return redirect(url_for('main.index'))
+        except sqlite3.IntegrityError:
+            flash("Username already exists. Please choose another one.", "danger")
+            return render_template('register.html')
+        except sqlite3.OperationalError:
+            flash("Database is currently locked. Please try again later.", "danger")
+            return render_template('register.html')
+
+    return render_template('register.html')
+
+
 
 #For SSRF -> DOS Example && Software and Data Integrity Failures -> Insecure Deserialization
 @main.route('/student/<student_id>/upload_assignment/<course>', methods=['GET', 'POST'])
