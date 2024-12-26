@@ -1,6 +1,6 @@
-projectKey=task3Sonar
+projectKey=duygu
 serverUrl=http://localhost:9000
 serverVersion=24.12.0.100206
-dashboardUrl=http://localhost:9000/dashboard?id=task3Sonar
-ceTaskId=fe092f1d-f286-4d02-b868-b75c4f846705
-ceTaskUrl=http://localhost:9000/api/ce/task?id=fe092f1d-f286-4d02-b868-b75c4f846705
+dashboardUrl=http://localhost:9000/dashboard?id=duygu
+ceTaskId=4c0bb51d-1d1c-435c-ae9e-66d01120170e
+ceTaskUrl=http://localhost:9000/api/ce/task?id=4c0bb51d-1d1c-435c-ae9e-66d01120170e
