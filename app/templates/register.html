@@ -4,38 +4,177 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #eeeef0;
+        }
+
+        .navbar {
+            display: flexbox;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            background-image: url("{{ url_for('static', filename='navbar.png') }}");
+        }
+
+        .navbar img {
+            height: 90px;
+            /* Adjust logo size */
+            padding: 0.1rem;
+        }
+
+        .navbar .right-links {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar a {
+            color: white;
+
+            margin-left: 20px;
+            font-size: 14px;
+            padding: 8px 10px;
+            background-color: #0073C1;
+            /* Blue for the button */
+            border-radius: 0px;
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar a:hover {
+            background-color: #005A9E;
+        }
+
+        /* Middle dark bar styling */
+        .middle-bar {
+            background-color: #3E4C56;
+            /* Slightly lighter dark bar */
+            height: 3rem;
+            display: flex;
+            align-items: center;
+
+        }
+
+        .content {
+            padding: 2em;
+            text-align: center;
+        }
+
+        table {
+            margin: 0 auto;
+            width: 50%;
+            border-collapse: collapse;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #ddd;
+        }
+
+        th,
+        td {
+            padding: 1em;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        .initialBox {
+            margin-top: 1.5rem;
+            margin-left: 4rem;
+            margin-right: 4rem;
+            background-color: white;
+            padding-bottom: 5rem;
+
+        }
+
+        .loginText {
+            color: #3E4C56;
+            font-weight: bold;
+            padding-bottom: 1rem;
+
+        }
+
+        .cardBg {
+            background-color: #eeeef0;
+            border: none;
+            border-radius: 0rem;
+        }
+
+        .formInp {
+            padding-bottom: 2.5rem;
+        }
+
+        .inputPd {
+            padding-bottom: 1rem;
+        }
+
+        .inputStyl {
+            border: none;
+            border-radius: 0rem;
+            height: 2.6rem;
+        }
+
+        .lostPssw {
+            font-size: 14px;
+        }
+    </style>
 </head>
+
 <body>
-    <div class="container mt-5">
-        <h2 class="text-center">Register</h2>
-        {% with messages = get_flashed_messages(with_categories=true) %}
+    <div class="initialBox">
+        <div class="navbar">
+
+            <div>
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+            </div>
+
+            <div class="right-links">
+                <a href="/">Login</a>
+            </div>
+        </div>
+
+        <div class="middle-bar">
+
+        </div>
+        <div class="container mt-5">
+            <h2 class="text-center">Register</h2>
+            {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}" role="alert">
-                        {{ message }}
-                    </div>
-                {% endfor %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
             {% endif %}
-        {% endwith %}
-        <form method="POST" action="{{ url_for('main.register') }}">
-            <div class="mb-3">
-                <label for="username" class="form-label">Username</label>
-                <input type="text" class="form-control" id="username" name="username" required>
-            </div>
-            <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" name="password" required>
-            </div>
-            <div class="mb-3">
-                <label for="confirm_password" class="form-label">Confirm Password</label>
-                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Register</button>
-        </form>
-        <p class="text-center mt-3">
-            Already have an account? <a href="{{ url_for('main.index') }}">Login</a>
-        </p>
+            {% endwith %}
+            <form method="POST" action="{{ url_for('main.register') }}">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <div class="mb-3">
+                    <label for="confirm_password" class="form-label">Confirm Password</label>
+                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Register</button>
+            </form>
+            <p class="text-center mt-3">
+                Already have an account? <a href="{{ url_for('main.index') }}">Login</a>
+            </p>
+        </div>
     </div>
 </body>
 </html>
