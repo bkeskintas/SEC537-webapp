@@ -33,7 +33,6 @@ def login():
     else:
         return "Invalid credentials"
 
-
 @main.route('/student/<student_id>')
 def student_dashboard(student_id):
     conn = sqlite3.connect('vulnerable.db')
@@ -93,63 +92,6 @@ def edit_grade(grade_id):
     grade_data = c.fetchone()
     conn.close()
     return render_template('edit_grade.html', grade_data=grade_data)
-
-@main.route('/student/<student_id>/upload_resource', methods=['GET', 'POST'])
-def upload_resource(student_id):
-    username = session['username'] 
-    role = session['role']
-    
-    if request.method == 'POST':
-        #url = request.form.get('url')
-        serialized_data = request.form.get('url')
-
-        try:
-            # Vulnerable to SSRF: Fetch the URL content
-            response = requests.get(serialized_data, timeout=5)
-            content_type = response.headers.get('Content-Type', '')
-
-            if 'text/html' in content_type:
-                content = response.text  # Display HTML content
-            elif 'application/pdf' in content_type:
-                content = "Preview not supported for PDFs. Download the document directly."
-            else:
-                content = "Unsupported file type."
-        except Exception as e:
-            content = f"Error fetching resource: {str(e)}"
-
-        # Vulnerable Deserialization
-        if serialized_data:
-            try:
-                # Vulnerable: Deserializing untrusted data without validation
-                deserialized_data = pickle.loads(serialized_data)
-                content += f"<br>Deserialized Data: {deserialized_data}"
-            except Exception as e:
-                content += f"<br>Error during deserialization: {str(e)}"
-
-        return render_template('upload_resource.html', url=serialized_data, content=content, student_id=student_id, username=username, role=role)
-
-    return render_template('upload_resource.html', student_id=student_id, username=username, role=role)
-
-@main.route('/student/<student_id>/view_assignment/<course>')
-def view_assignment(student_id, course):
-    username = session.get('username')
-    role = session.get('role')
-
-    conn = sqlite3.connect('vulnerable.db')
-    c = conn.cursor()
-    c.execute("SELECT file_data FROM assignments WHERE student_id=? AND course=?", (student_id, course))
-    data = c.fetchone()
-    conn.close()
-
-    if data:
-        try:
-            #Vulnerable deserialization of file data
-            deserialized_data = pickle.loads(data[0])
-            return f"Assignment Content for {course}: {deserialized_data[:200]} (truncated)"
-        except Exception as e:
-            return f"Error deserializing assignment: {str(e)}", 500
-
-    return "No assignment found for this course.", 404
 
 @main.route('/debug')
 def debug_route():
