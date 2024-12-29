@@ -172,14 +172,7 @@
         font-weight: bold;
     }
 
-    /* Profile Image Styling */
-    .profile-img {
-        height: 40px;
-        width: 60px;
-        border-radius: 50%; /* Makes the image circular */
-        border: 2px solid #afbaf0;
-
-    }
+    
     .icn{
         color: #758e9f;
     }
@@ -283,13 +276,17 @@
                 </div>
                 <div class="user-profile" onclick="toggleDropdown()">
                 <span class="user-name">Admin</span>
-                <img src="{{ url_for('static', filename='user.png') }}" alt="Profile" class="profile-img">
+                {% if profile_photo %}
+                <img src="{{ url_for('main.get_profile_photo', student_id=student_id) }}" alt="Profile" class="profPic">
+                {% else %}
+                <img src="{{ url_for('static', filename='user.png') }}" alt="Profile" class="profPic">
+                {% endif %}
                 <div class="dropdown-menu" id="dropdownMenu">
                     <a href="#">Profile</a>
                     <a href="{{ url_for('main.grades', student_id=student_id) }}">Grades</a>
                     <a href="#">Calendar</a>
                     <a href="#">Private files</a>
-                    <a href="#">Preferences</a>
+                    <a href="{{ url_for('main.upload_photo', student_id=student_id) }}">Update Profile Photo</a>
                     <hr>
                     <a href="/logout"><i class="fas fa-sign-out-alt"></i> Log out</a>
                 </div>

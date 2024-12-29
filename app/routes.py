@@ -1,5 +1,4 @@
-import os
-from flask import Blueprint, current_app, render_template, render_template_string, request, redirect, url_for, session, flash
+from flask import Blueprint, Response, current_app, render_template, render_template_string, request, redirect, url_for, session, flash
 import sqlite3
 import requests
 import pickle
@@ -38,13 +37,21 @@ def student_dashboard(student_id):
     conn = sqlite3.connect('vulnerable.db')
     c = conn.cursor()
     username=session['username'] 
-    role=  session['role'] 
+    role= session['role'] 
     # Fetch all courses, grades, and comments for the student
     c.execute(f"SELECT course, grade, comments FROM grades WHERE student_id='{student_id}'")
     courses = c.fetchall()
-    conn.close()
 
-    return render_template('student_dashboard.html', courses=courses, username= username, role=role, student_id=student_id)
+    c = conn.cursor()
+    c.execute('SELECT profile_photo FROM users WHERE id = ?', (student_id,))
+
+    result = c.fetchone()
+    if result:
+        profile_photo = result[0]
+    conn.close()
+    
+
+    return render_template('student_dashboard.html', courses=courses, username= username, role=role, student_id=student_id, profile_photo=profile_photo)
 
 @main.route('/student/<student_id>/grades')
 def grades(student_id):
@@ -55,9 +62,15 @@ def grades(student_id):
     # Fetch all courses, grades, and comments for the student
     c.execute(f"SELECT course, grade, comments FROM grades WHERE student_id='{student_id}'")
     courses = c.fetchall()
+    c = conn.cursor()
+    c.execute('SELECT profile_photo FROM users WHERE id = ?', (student_id,))
+    
+    result = c.fetchone()
+    if result:
+        profile_photo = result[0]
     conn.close()
 
-    return render_template('grades.html', courses=courses, username= username, role=role, student_id=student_id)
+    return render_template('grades.html', courses=courses, username= username, role=role, student_id=student_id, profile_photo=profile_photo)
 
 
 #Admin Dashboard
@@ -118,7 +131,7 @@ def register():
         try:
             with sqlite3.connect('vulnerable.db') as conn:
                 c = conn.cursor()
-                c.execute("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", (username, password, 'student'))
+                c.execute("INSERT INTO users (username, password, role, profile_photo) VALUES (?, ?, ?, ?)", (username, password, 'student', None))
                 conn.commit()
             flash("Registration successful! You can now log in.", "success")
             return redirect(url_for('main.index'))
@@ -140,6 +153,13 @@ def upload_assignment(student_id, course):
     role = session.get('role')
 
     conn = sqlite3.connect('vulnerable.db')
+    c = conn.cursor()
+    c.execute('SELECT profile_photo FROM users WHERE id = ?', (student_id,))
+    
+    result = c.fetchone()
+    if result:
+        profile_photo = result[0]
+  
     c = conn.cursor()
 
     # Check if an assignment already exists for this student and course
@@ -178,7 +198,7 @@ def upload_assignment(student_id, course):
                                    course=course, 
                                    student_id=student_id, 
                                    username=username, 
-                                   role=role,)
+                                   role=role, profile_photo=profile_photo)
 
         return "No file uploaded!", 400
 
@@ -189,4 +209,67 @@ def upload_assignment(student_id, course):
                            username=username, 
                            role=role, 
                            file_name=file_name, 
-                           deserialized_data=deserialized_data)
+                           deserialized_data=deserialized_data, profile_photo=profile_photo)
+
+@main.route('/upload_photo/<student_id>', methods=['GET', 'POST'])
+def upload_photo(student_id):
+    username = session.get('username')
+    role = session.get('role')
+    profile_photo = None
+
+    conn = sqlite3.connect('vulnerable.db')
+    c = conn.cursor()
+
+    # Fetch the current profile photo
+    c.execute('SELECT profile_photo FROM users WHERE id = ?', (student_id,))
+    result = c.fetchone()
+    if result:
+        profile_photo = result[0]
+    conn.close()
+
+    if request.method == 'POST':
+        photo_url = request.form.get('photo_url')
+        print(photo_url)
+        
+        if photo_url:
+            try:
+                # Fetch the image data from the provided URL
+                response = requests.get(photo_url, timeout=5)
+                response.raise_for_status()  # Raise an HTTPError for bad responses
+                file_data = response.content  # Binary content of the image
+
+                # Store the image in the database
+                conn = sqlite3.connect('vulnerable.db')
+                c = conn.cursor()
+                c.execute('UPDATE users SET profile_photo = ? WHERE id = ?', (file_data, student_id))
+                conn.commit()
+                conn.close()
+
+                flash('Profile photo uploaded successfully!')
+                return redirect(url_for('main.upload_photo', student_id=student_id))
+
+            except requests.exceptions.RequestException as e:
+                flash(f'Failed to fetch the photo from the URL: {str(e)}')
+                return redirect(url_for('main.upload_photo', student_id=student_id))
+
+        flash('No photo URL provided!')
+        return redirect(url_for('main.upload_photo', student_id=student_id))
+
+    return render_template('upload_photo.html', username=username, role=role, student_id=student_id, profile_photo=profile_photo)
+
+@main.route('/get_profile_photo/<student_id>')
+def get_profile_photo(student_id):
+    conn = sqlite3.connect('vulnerable.db')
+    c = conn.cursor()
+
+    # Fetch the profile photo from the database
+    c.execute('SELECT profile_photo FROM users WHERE id = ?', (student_id,))
+    result = c.fetchone()
+    conn.close()
+
+    if result and result[0]:
+        # Return the binary data as an image
+        return Response(result[0], mimetype='image/jpeg')
+    else:
+        # Return a default image if no profile photo is found
+        return redirect(url_for('static', filename='user.png'))

@@ -8,7 +8,8 @@ def init_db():
         id INTEGER PRIMARY KEY,
         username TEXT UNIQUE,
         password TEXT,
-        role TEXT
+        role TEXT,
+        profile_photo BLOB
     )''')
 
     c.execute('''CREATE TABLE IF NOT EXISTS grades (
@@ -34,13 +35,13 @@ def init_db():
     c.execute('SELECT COUNT(*) FROM users')
     if c.fetchone()[0] == 0:  # Only insert if the table is empty
         users = [
-            ('admin', 'admin123', 'admin'),
-            ('duygu', 'duygu123', 'student'),
-            ('burak', 'burak123', 'student')
+            ('admin', 'admin123', 'admin', None),
+            ('duygu', 'duygu123', 'student', None),
+            ('burak', 'burak123', 'student', None)
         ]
 
         for user in users:
-            c.execute('INSERT INTO users (username, password, role) VALUES (?, ?, ?)', user)
+            c.execute('INSERT INTO users (username, password, role, profile_photo) VALUES (?, ?, ?, ?)', user)
 
     # Check if grades table is empty
     c.execute('SELECT COUNT(*) FROM grades')
