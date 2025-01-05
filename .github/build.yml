@@ -16,4 +16,4 @@ jobs:
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v4
         env: # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ b58f12ae3ad0e614c70f1d636a8ffe4b70060b24 }}
+          SONAR_TOKEN: ${{ 400c72f3645a9f032ffa04330fe25b5ad0b44e4c }}
