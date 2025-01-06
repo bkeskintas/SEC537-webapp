@@ -247,7 +247,7 @@ def upload_photo(student_id):
         if photo_url:
             try:
                 # Fetch the image data from the provided URL
-                response = requests.get(photo_url, timeout=5)
+                response = requests.get(photo_url)
                 response.raise_for_status()  # Raise an HTTPError for bad responses
                 file_data = response.content  # Binary content of the image
 
