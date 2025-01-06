@@ -2,6 +2,8 @@ from flask import Blueprint, Response, current_app, render_template, render_temp
 import sqlite3
 import requests
 import pickle
+from jinja2.utils import urlize
+from time import perf_counter
 
 main = Blueprint('main', __name__)
 
@@ -110,6 +112,17 @@ def edit_grade(grade_id):
 def debug_route():
     result = 1 / 0  #Causes a ZeroDivisionError and trigger a stack trace
     return f"Result: {result}"
+
+@main.route('/lol')
+def lol_route():
+   for i in range(3):
+        text = "abc@" + "." * (i+1)*5000 + "!"
+   lenValue = len(text)
+   begin = perf_counter()
+   urlize(text)
+   DURATION = perf_counter() - begin
+   print(f"{lenValue}: took {DURATION} seconds!")  #Causes a ZeroDivisionError and trigger a stack trace
+   return f"Result: {DURATION}"
 
 @main.route('/logout')
 def logout():
